@@ -10,11 +10,11 @@ export async function startTranscription(setTranscript) {
       alert('Browser not supported');
       return;
     }
-    console.log("api console is ", process.env.VUE_APP_DEEPGRAM_API_KEY);
+    console.log("api console is ", process.env.VITE_DEEPGRAM_API_KEY);
     mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
     socket = new WebSocket('wss://api.deepgram.com/v1/listen?diarize=true', [
       'token',
-      process.env.VUE_APP_DEEPGRAM_API_KEY,
+      process.env.VITE_DEEPGRAM_API_KEY,
     ]);
 
     socket.onopen = () => {
