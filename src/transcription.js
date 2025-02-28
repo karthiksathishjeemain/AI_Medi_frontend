@@ -14,7 +14,7 @@ export async function startTranscription(setTranscript) {
     mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
     socket = new WebSocket('wss://api.deepgram.com/v1/listen?diarize=true', [
       'token',
-      process.env.VITE_DEEPGRAM_API_KEY,
+      "eb6ac694e0644e50bebfd78351de0e2e4f2bd213",
     ]);
 
     socket.onopen = () => {
