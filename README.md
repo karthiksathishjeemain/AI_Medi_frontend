@@ -39,10 +39,9 @@ A modern medical application frontend built with Quasar Framework that provides 
    yarn install
    ```
 
-3. Set up environment variables:
-   - Create a `.env` file based on `.env.example` (if provided)
-   - Add your API keys and configuration
-
+3. No need of setting new API keys for testing purpose (in local). 
+Both the Mistral API as well as Deepgram API have been set.
+If you want to use it for production purpose then use your own API.
 ### Running the Application
 
 ```bash
