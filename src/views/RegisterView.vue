@@ -93,7 +93,7 @@
         termsAccepted: false,
         error: null,
         isLoading: false,
-        apiBaseUrl: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000'
+        apiBaseUrl: "https://ai-medi-backend.vercel.app"
       }
     },
     methods: {

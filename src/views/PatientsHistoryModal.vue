@@ -5,20 +5,20 @@
           <h2>Patient History</h2>
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
-        
+
         <div v-if="isLoading" class="loading-container">
           <div class="loading-spinner"></div>
           <p>Loading history...</p>
         </div>
-        
+
         <div v-else-if="error" class="error-message">
           {{ error }}
         </div>
-        
+
         <div v-else-if="sessionNotes.length === 0" class="no-history">
           <p>No treatment history found for this patient</p>
         </div>
-        
+
         <div v-else class="modal-content">
           <table class="history-table">
             <thead>
@@ -58,7 +58,7 @@
       </div>
     </div>
     </template>
-    
+
     <script>
     export default {
       name: 'PatientHistoryModal',
@@ -77,7 +77,7 @@
           sessionNotes: [],
           isLoading: false,
           error: null,
-          apiBaseUrl: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000'
+          apiBaseUrl: "https://ai-medi-backend.vercel.app"
         };
       },
       watch: {
@@ -91,28 +91,28 @@
         async fetchPatientHistory() {
           this.isLoading = true;
           this.error = null;
-          
+
           try {
             const token = localStorage.getItem('authToken');
-            
+
             if (!token) {
               this.$router.push('/login');
               return;
             }
-            
+
             const response = await fetch(`${this.apiBaseUrl}/api/patients/${this.patientId}/session-notes`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`
               }
             });
-            
+
             if (!response.ok) {
               throw new Error('Failed to fetch patient history');
             }
-            
+
             const data = await response.json();
-           
+
             this.sessionNotes = data.session_notes.map(session => ({
               ...session,
               note: null,
@@ -121,7 +121,7 @@
               isEditing: false,
               editText: ''
             }));
-            
+
           } catch (error) {
             this.error = error.message || 'Failed to load patient history';
             console.error('Error fetching patient history:', error);
@@ -129,122 +129,122 @@
             this.isLoading = false;
           }
         },
-        
+
         async fetchSessionNote(sessionId, index) {
-         
+
           const updatedNotes = [...this.sessionNotes];
-          
-         
+
+
           updatedNotes[index] = {
             ...updatedNotes[index],
             noteLoading: true,
             noteError: null
           };
-          
-        
+
+
           this.sessionNotes = updatedNotes;
-          
+
           try {
             const token = localStorage.getItem('authToken');
-            
+
             if (!token) {
               this.$router.push('/login');
               return;
             }
-            
+
             const response = await fetch(`${this.apiBaseUrl}/api/session-notes/${sessionId}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`
               }
             });
-            
+
             if (!response.ok) {
               throw new Error('Failed to fetch session note');
             }
-            
+
             const sessionData = await response.json();
-            
-           
+
+
             const notesWithData = [...this.sessionNotes];
             notesWithData[index] = {
               ...notesWithData[index],
               note: sessionData.note,
               noteLoading: false
             };
-            
-         
+
+
             this.sessionNotes = notesWithData;
           } catch (error) {
-          
+
             const notesWithError = [...this.sessionNotes];
             notesWithError[index] = {
               ...notesWithError[index],
               noteError: error.message || 'Error loading note',
               noteLoading: false
             };
-        
+
             this.sessionNotes = notesWithError;
             console.error('Error fetching session note:', error);
           }
         },
-        
+
         editNote(index) {
-        
+
           const updatedNotes = [...this.sessionNotes];
-          
-          
+
+
           updatedNotes[index] = {
             ...updatedNotes[index],
             isEditing: true,
             editText: updatedNotes[index].note
           };
-          
-       
+
+
           this.sessionNotes = updatedNotes;
         },
-        
+
         cancelEdit(index) {
-          
+
           const updatedNotes = [...this.sessionNotes];
-          
-       
+
+
           updatedNotes[index] = {
             ...updatedNotes[index],
             isEditing: false,
             editText: ''
           };
-          
-       
+
+
           this.sessionNotes = updatedNotes;
         },
-        
+
         async saveNote(sessionId, index) {
-         
+
           const updatedNotes = [...this.sessionNotes];
-          
-         
+
+
           updatedNotes[index] = {
             ...updatedNotes[index],
             noteLoading: true,
             isEditing: false
           };
-          
-     
+
+
           this.sessionNotes = updatedNotes;
-          
+
           try {
             const token = localStorage.getItem('authToken');
-            
+
             if (!token) {
               this.$router.push('/login');
               return;
             }
-            
+
             const updatedNote = {
               note: this.sessionNotes[index].editText
             };
-            
+
             const response = await fetch(`${this.apiBaseUrl}/api/session-notes/${sessionId}`, {
               method: 'PUT',
               headers: {
@@ -253,12 +253,12 @@
               },
               body: JSON.stringify(updatedNote)
             });
-            
+
             if (!response.ok) {
               throw new Error('Failed to update session note');
             }
-            
-         
+
+
             const notesWithUpdate = [...this.sessionNotes];
             notesWithUpdate[index] = {
               ...notesWithUpdate[index],
@@ -266,94 +266,94 @@
               noteLoading: false,
               editText: ''
             };
-            
-           
+
+
             this.sessionNotes = notesWithUpdate;
           } catch (error) {
-           
+
             const notesWithError = [...this.sessionNotes];
             notesWithError[index] = {
               ...notesWithError[index],
               noteError: error.message || 'Error updating note',
               noteLoading: false
             };
-            
-          
+
+
             this.sessionNotes = notesWithError;
             console.error('Error updating session note:', error);
           }
         },
-        
+
         confirmDelete(sessionId, index) {
           if (confirm('Are you sure you want to delete this session note? This action cannot be undone.')) {
             this.deleteNote(sessionId, index);
           }
         },
-        
+
         async deleteNote(sessionId, index) {
-         
+
           const updatedNotes = [...this.sessionNotes];
-          
-     
+
+
           updatedNotes[index] = {
             ...updatedNotes[index],
             noteLoading: true
           };
-          
-   
+
+
           this.sessionNotes = updatedNotes;
-          
+
           try {
             const token = localStorage.getItem('authToken');
-            
+
             if (!token) {
               this.$router.push('/login');
               return;
             }
-            
+
             const response = await fetch(`${this.apiBaseUrl}/api/session-notes/${sessionId}`, {
               method: 'DELETE',
               headers: {
                 'Authorization': `Bearer ${token}`
               }
             });
-            
+
             if (!response.ok) {
               throw new Error('Failed to delete session note');
             }
-            
-            
+
+
             const notesAfterDelete = this.sessionNotes.filter((_, i) => i !== index);
-            
-         
+
+
             this.sessionNotes = notesAfterDelete;
           } catch (error) {
-          
+
             const notesWithError = [...this.sessionNotes];
             notesWithError[index] = {
               ...notesWithError[index],
               noteError: error.message || 'Error deleting note',
               noteLoading: false
             };
-            
-        
+
+
             this.sessionNotes = notesWithError;
             console.error('Error deleting session note:', error);
           }
         },
-        
+
         closeModal() {
           this.$emit('close');
         },
-        
+
         formatDateTime(dateString) {
           if (!dateString) return 'Unknown';
-          
+
           const date = new Date(dateString);
-          return `${date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
+          return `${date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
           })} ${date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit'
@@ -362,7 +362,7 @@
       }
     };
     </script>
-    
+
     <style scoped>
     .modal-backdrop {
       position: fixed;
@@ -376,7 +376,7 @@
       align-items: center;
       z-index: 1000;
     }
-    
+
     .modal-container {
       background-color: white;
       border-radius: 8px;
@@ -388,7 +388,7 @@
       flex-direction: column;
       overflow: hidden;
     }
-    
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -396,13 +396,13 @@
       padding: 16px 20px;
       border-bottom: 1px solid #eee;
     }
-    
+
     .modal-header h2 {
       margin: 0;
       font-size: 22px;
       color: #2c3e50;
     }
-    
+
     .close-btn {
       background: none;
       border: none;
@@ -412,17 +412,17 @@
       padding: 0;
       line-height: 1;
     }
-    
+
     .close-btn:hover {
       color: #333;
     }
-    
+
     .modal-content {
       padding: 20px;
       overflow-y: auto;
       max-height: calc(90vh - 70px);
     }
-    
+
     .loading-container {
       display: flex;
       flex-direction: column;
@@ -430,7 +430,7 @@
       justify-content: center;
       padding: 40px;
     }
-    
+
     .loading-spinner {
       width: 40px;
       height: 40px;
@@ -440,12 +440,12 @@
       animation: spin 1s linear infinite;
       margin-bottom: 16px;
     }
-    
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    
+
     .error-message {
       background-color: #ffebee;
       color: #d32f2f;
@@ -453,82 +453,82 @@
       margin: 20px;
       border-radius: 8px;
     }
-    
+
     .no-history {
       padding: 40px;
       text-align: center;
       color: #666;
       font-style: italic;
     }
-    
+
     .history-table {
       width: 100%;
       border-collapse: collapse;
     }
-    
-    .history-table th, 
+
+    .history-table th,
     .history-table td {
       padding: 12px 16px;
       text-align: left;
       border-bottom: 1px solid #eee;
     }
-    
+
     .history-table th {
       background-color: #f8fafc;
       font-weight: 600;
       color: #2c3e50;
     }
-    
+
     .history-table tr:hover {
       background-color: #f5f9ff;
     }
-    
+
     .column-serial {
       width: 60px;
       text-align: center;
     }
-    
+
     .column-date {
       width: 40%;
     }
-    
+
     .column-action {
       width: 40%;
     }
-    
+
     .note-loading {
       font-style: italic;
       color: #666;
     }
-    
+
     .note-error {
       color: #d32f2f;
       font-size: 0.9em;
     }
-    
+
     .note-container {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .note-content {
       white-space: pre-line;
       line-height: 1.4;
       color: #2c3e50;
     }
-    
+
     .note-actions {
       display: flex;
       gap: 8px;
     }
-    
+
     .note-edit {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .note-textarea {
       min-height: 100px;
       padding: 8px;
@@ -540,12 +540,12 @@
       width: 100%;
       resize: vertical;
     }
-    
+
     .edit-actions {
       display: flex;
       gap: 8px;
     }
-    
+
     .view-note-btn, .edit-btn, .save-btn {
       padding: 6px 12px;
       background-color: #4a82ed;
@@ -557,11 +557,11 @@
       font-size: 0.9em;
       transition: all 0.2s ease;
     }
-    
+
     .view-note-btn:hover, .edit-btn:hover, .save-btn:hover {
       background-color: #3461c0;
     }
-    
+
     .delete-btn {
       padding: 6px 12px;
       background-color: #ef5350;
@@ -573,11 +573,11 @@
       font-size: 0.9em;
       transition: all 0.2s ease;
     }
-    
+
     .delete-btn:hover {
       background-color: #d32f2f;
     }
-    
+
     .cancel-btn {
       padding: 6px 12px;
       background-color: #f8fafc;
@@ -589,22 +589,22 @@
       font-size: 0.9em;
       transition: all 0.2s ease;
     }
-    
+
     .cancel-btn:hover {
       background-color: #f1f5f9;
     }
-    
+
     @media (max-width: 600px) {
       .modal-container {
         width: 95%;
         max-height: 95vh;
       }
-    
-      .history-table th, 
+
+      .history-table th,
       .history-table td {
         padding: 10px;
       }
-    
+
       .modal-header h2 {
         font-size: 20px;
       }
