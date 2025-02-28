@@ -36,7 +36,7 @@ export default {
       showSuccessToast: false,
       showErrorToast: false,
       errorMessage: '',
-      apiBaseUrl: 'https://ai-medi-backend.vercel.app' 
+      apiBaseUrl: 'https://ai-medi-backend.vercel.app'
     };
   },
   computed: {
@@ -74,7 +74,7 @@ export default {
       try {
         const summary = await this.generateSummary(this.transcription);
 
-        // Remove any markdown formatting (asterisks) from the summary
+
         const cleanSummary = this.removeMarkdownFormatting(summary);
 
         const token = localStorage.getItem('authToken');
@@ -114,12 +114,12 @@ export default {
     removeMarkdownFormatting(text) {
       if (!text) return '';
 
-      // Remove bold/italic markdown (single and double asterisks)
+
       return text
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold (**text**)
-        .replace(/\*(.*?)\*/g, '$1')     // Remove italic (*text*)
-        .replace(/__(.*?)__/g, '$1')     // Remove bold with underscores
-        .replace(/_(.*?)_/g, '$1');      // Remove italic with underscores
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/__(.*?)__/g, '$1')
+        .replace(/_(.*?)_/g, '$1');     
     },
 
     async generateSummary(text) {

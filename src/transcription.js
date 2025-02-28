@@ -31,7 +31,6 @@ export async function startTranscription(setTranscript) {
       try {
         const received = JSON.parse(message.data);
 
-        // Check if we have speaker diarization data
         if (received.channel &&
             received.channel.alternatives &&
             received.channel.alternatives[0]) {
@@ -39,9 +38,8 @@ export async function startTranscription(setTranscript) {
           const alternative = received.channel.alternatives[0];
           const transcript = alternative.transcript;
 
-          // Check if there are words with speaker info
           if (alternative.words && alternative.words.length > 0 && received.is_final) {
-            // Process the words with speaker information
+
             const speakerSegment = {
               speaker: getSpeakerFromWords(alternative.words),
               text: transcript.trim()
@@ -49,7 +47,7 @@ export async function startTranscription(setTranscript) {
             console.log('Transcript with speaker:', speakerSegment);
             setTranscript(speakerSegment);
           } else if (transcript && received.is_final) {
-            // Fallback if no speaker info available
+
             console.log('Transcript (no speaker info):', transcript);
             setTranscript({ text: transcript.trim(), speaker: null });
           }
@@ -62,11 +60,11 @@ export async function startTranscription(setTranscript) {
     socket.onclose = () => console.log('WebSocket Closed');
     socket.onerror = (error) => console.error('WebSocket Error:', error);
 
-    // Return cleanup function that properly stops everything
+
     return () => {
       console.log('Cleaning up transcription resources');
 
-      // Check if mediaRecorder is active before stopping
+
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         console.log('Stopping MediaRecorder');
         mediaRecorder.stop();
@@ -74,10 +72,10 @@ export async function startTranscription(setTranscript) {
         console.log('MediaRecorder was already inactive or not initialized');
       }
 
-      // Close the WebSocket connection with more explicit logging
+
       if (socket) {
         console.log('WebSocket readyState before closing:', socket.readyState);
-        // Force close regardless of current state
+
         try {
           socket.close(1000, "Deliberate disconnection");
           console.log('WebSocket close method called');
@@ -88,7 +86,6 @@ export async function startTranscription(setTranscript) {
         console.log('WebSocket was not initialized');
       }
 
-      // Ensure all audio tracks are properly stopped
       if (stream) {
         console.log('Stopping audio tracks. Track count:', stream.getTracks().length);
         stream.getTracks().forEach(track => {
@@ -99,7 +96,7 @@ export async function startTranscription(setTranscript) {
         console.log('Stream was not initialized');
       }
 
-      // Set variables to null to help garbage collection
+
       mediaRecorder = null;
       socket = null;
       stream = null;
@@ -108,7 +105,7 @@ export async function startTranscription(setTranscript) {
   } catch (error) {
     console.error('Error accessing microphone:', error);
 
-    // Clean up resources in case of error
+  
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
     }
