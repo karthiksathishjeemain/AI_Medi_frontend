@@ -133,7 +133,7 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.VUE_APP_MISTRAL_API_KEY}`
+              'Authorization': `Bearer SnKZ9Dryc0oeA9twr35jgtrhxgM1zoRm`
             },
             body: JSON.stringify({
               model: 'mistral-large-latest',
