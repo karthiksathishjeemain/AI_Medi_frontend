@@ -2,7 +2,7 @@
   <div class="app-container">
     <nav class="navbar">
       <div class="logo">
-        <router-link to="/">AI-Medi</router-link>
+        <router-link to="/">CeraMD AI</router-link>
       </div>
       <div class="nav-buttons">
         <template v-if="isLoggedIn">
@@ -34,13 +34,13 @@
         </template>
       </div>
     </nav>
-    
+
     <router-view @login-success="checkAuthStatus" />
   </div>
 </template>
 
 <script>
-import authService from './authService'; 
+import authService from './authService';
 
 export default {
   name: 'App',
@@ -54,31 +54,31 @@ export default {
   computed: {
     userInitials() {
       if (!this.userData || !this.userData.name) return '?';
-      
-     
+
+
       const nameParts = this.userData.name.split(' ');
       if (nameParts.length === 1) {
         return nameParts[0].charAt(0).toUpperCase();
       }
-      
+
       return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
     }
   },
   created() {
 
     this.checkAuthStatus();
-    
- 
+
+
     authService.onAuthChange((isAuthenticated, userData) => {
       this.isLoggedIn = isAuthenticated;
       this.userData = userData;
     });
-    
+
 
     document.addEventListener('click', this.handleOutsideClick);
   },
   unmounted() {
-  
+
     document.removeEventListener('click', this.handleOutsideClick);
   },
   methods: {
@@ -86,22 +86,22 @@ export default {
       this.isLoggedIn = authService.isLoggedIn();
       this.userData = authService.getUserData();
     },
-    
+
     toggleDropdown() {
       this.dropdownOpen = !this.dropdownOpen;
     },
-    
+
     handleOutsideClick(event) {
-      
-      if (this.dropdownOpen && 
-          this.$refs.dropdownMenu && 
-          this.$refs.userAvatarBtn && 
-          !this.$refs.dropdownMenu.contains(event.target) && 
+
+      if (this.dropdownOpen &&
+          this.$refs.dropdownMenu &&
+          this.$refs.userAvatarBtn &&
+          !this.$refs.dropdownMenu.contains(event.target) &&
           !this.$refs.userAvatarBtn.contains(event.target)) {
         this.dropdownOpen = false;
       }
     },
-    
+
     logout() {
       authService.logout();
       this.dropdownOpen = false;

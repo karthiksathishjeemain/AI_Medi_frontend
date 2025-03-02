@@ -24,7 +24,7 @@ const requireAuth = (to, from, next) => {
 const requirePatient = (to, from, next) => {
   const token = localStorage.getItem('authToken');
   const currentPatient = localStorage.getItem('currentPatient');
-  
+
   if (!token) {
     // Not logged in, redirect to login
     next({
@@ -83,9 +83,9 @@ const router = createRouter({
 // Global navigation guard
 router.beforeEach((to, from, next) => {
   // Get the page title from the route meta data
-  const title = to.meta.title || 'AI-Medi';
+  const title = to.meta.title || 'CeraMD AI';
   document.title = title;
-  
+
   next();
 });
 

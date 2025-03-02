@@ -1,7 +1,7 @@
 <template>
     <div class="home-container">
       <main class="main-content">
-        <h1 class="welcome-heading">Welcome to AI-Medi</h1>
+        <h1 class="welcome-heading">Welcome to CeraMD AI</h1>
         <p class="welcome-description">
           Your intelligent medical assistant powered by AI
         </p>
@@ -34,7 +34,7 @@
     justify-content: center;
     align-items: center;
     padding: 40px 20px;
-    min-height: calc(100vh - 64px); 
+    min-height: calc(100vh - 64px);
   }
 
   .welcome-heading {
