@@ -10,7 +10,7 @@
               <span v-if="currentPatient.gender" class="detail-item">Gender: {{ formatGender(currentPatient.gender) }}</span>
             </div>
           </div>
-          
+
           <button class="add-patient-button" @click="addNewPatient" title="Add new patient">
             <span class="plus-icon">+</span>
           </button>
@@ -19,14 +19,14 @@
       </div>
     </header>
     <div class="content-container">
-     
+
       <div class="column recorder-container">
         <AudioRecorder @transcription-update="updateTranscription" />
         <SaveSession :transcription="currentTranscription" @session-saved="handleSessionSaved" />
       </div>
       <div class="column soap-container">
-        <SOAP 
-          :transcription="currentTranscription" 
+        <SOAP
+          :transcription="currentTranscription"
           @soap-update="updateSoapData"
         />
       </div>
@@ -41,7 +41,7 @@
 import AudioRecorder from '../components/AudioRecorder.vue';
 import SOAP from '../components/SOAP.vue';
 import Diagnosis from '../components/Diagnosis.vue';
-import SaveSession from './SaveSession.vue';
+import SaveSession from '../components/SaveSession.vue';
 
 
 export default {
@@ -75,7 +75,7 @@ export default {
     };
   },
   created() {
-   
+
     this.loadPatientData();
   },
   methods: {
@@ -89,15 +89,15 @@ export default {
           this.$router.push('/dashboard');
         }
       } else {
-        
+
         this.$router.push('/dashboard');
       }
     },
     addNewPatient() {
-      
+
       localStorage.removeItem('currentPatient');
-      
-      
+
+
       this.$router.push('/dashboard');
     },
     updateTranscription(text) {
@@ -107,18 +107,18 @@ export default {
       this.currentSoapData = soapData;
     },
     formatGender(gender) {
-      
+
       if (gender === 'prefer-not-to-say') {
         return 'Prefer not to say';
       }
-    
-      
-    
+
+
+
       return gender.charAt(0).toUpperCase() + gender.slice(1);
     },
     handleSessionSaved(data) {
       console.log('Session saved with ID:', data.sessionId);
-      
+
     }
 
   }
@@ -220,7 +220,7 @@ header h2 {
 
 .column {
   flex: 1;
-  min-width: 0; 
+  min-width: 0;
 }
 
 
@@ -228,21 +228,21 @@ header h2 {
   .content-container {
     flex-direction: row;
   }
-  
+
   .column {
     width: calc(33.33% - 14px);
   }
-  
+
   .header-content {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .patient-info-container {
     margin-bottom: 0;
   }
-  
+
   header h2 {
     text-align: right;
   }
@@ -253,11 +253,11 @@ header h2 {
     flex-direction: row;
     flex-wrap: wrap;
   }
-  
+
   .column {
     width: calc(50% - 10px);
   }
-  
+
   .diagnosis-container {
     width: 100%;
     margin-top: 20px;
@@ -268,7 +268,7 @@ header h2 {
   .app-container {
     padding: 10px;
   }
-  
+
   .patient-info {
     width: 100%;
   }

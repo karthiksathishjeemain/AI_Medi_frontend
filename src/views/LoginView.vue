@@ -1,13 +1,14 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h2 class="title">Login to AI-Medi</h2>
+      <h2 class="title">Login to CeraMD AI</h2>
 
       <div v-if="error" class="error-message">
         {{ error }}
       </div>
 
-      <form @submit.prevent="handleLogin" class="login-form">
+      <!-- Step 1: Credentials Form -->
+      <form v-if="!verificationMode" @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="email">Email</label>
           <input
@@ -35,8 +36,41 @@
           class="login-button"
           :disabled="isLoading"
         >
-          {{ isLoading ? 'Logging in...' : 'Login' }}
+          {{ isLoading ? 'Verifying...' : 'Continue' }}
         </button>
+      </form>
+
+      <!-- Step 2: Verification Code Form -->
+      <form v-if="verificationMode" @submit.prevent="handleVerification" class="login-form">
+        <div class="verification-message">
+          A verification code has been sent to your email.
+        </div>
+
+        <div class="form-group">
+          <label for="verificationCode">Verification Code</label>
+          <input
+            type="text"
+            id="verificationCode"
+            v-model="verificationCode"
+            placeholder="Enter the 6-digit code"
+            required
+            pattern="[0-9]{6}"
+            maxlength="6"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="login-button"
+          :disabled="isLoading"
+        >
+          {{ isLoading ? 'Verifying...' : 'Login' }}
+        </button>
+
+        <div class="resend-code">
+          Didn't receive a code?
+          <a href="#" @click.prevent="resendCode">Resend code</a>
+        </div>
       </form>
 
       <div class="register-link">
@@ -56,9 +90,13 @@ export default {
     return {
       email: '',
       password: '',
+      verificationCode: '',
+      verificationId: '',
+      verificationMode: false,
       error: null,
       isLoading: false,
       apiBaseUrl: "https://ai-medi-backend.vercel.app"
+      // apiBaseUrl: "http://localhost:5000"
     }
   },
   methods: {
@@ -84,15 +122,84 @@ export default {
           throw new Error(data.message || 'Failed to login');
         }
 
-        authService.login(data.user, data.token);
-
-        const redirectPath = this.$route.query.redirect || '/dashboard';
-
-        this.$router.push(redirectPath);
+        // Store the verification ID for the next step
+        this.verificationId = data.verification_id;
+        // Switch to verification mode
+        this.verificationMode = true;
 
       } catch (error) {
         this.error = error.message;
         console.error('Login error:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async handleVerification() {
+      this.isLoading = true;
+      this.error = null;
+
+      try {
+        const response = await fetch(`${this.apiBaseUrl}/api/verify-login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            verification_id: this.verificationId,
+            totp: this.verificationCode
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Invalid verification code');
+        }
+
+        // Complete the login process
+        authService.login(data.user, data.token);
+
+        const redirectPath = this.$route.query.redirect || '/dashboard';
+        this.$router.push(redirectPath);
+
+      } catch (error) {
+        this.error = error.message;
+        console.error('Verification error:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async resendCode() {
+      this.isLoading = true;
+      this.error = null;
+
+      try {
+        const response = await fetch(`${this.apiBaseUrl}/api/resend-totp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            verification_id: this.verificationId,
+            type: 'login'
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to resend code');
+        }
+
+        // Show success message
+        this.error = null;
+        alert('A new verification code has been sent to your email.');
+
+      } catch (error) {
+        this.error = error.message;
+        console.error('Resend code error:', error);
       } finally {
         this.isLoading = false;
       }
@@ -202,6 +309,33 @@ input:focus {
 }
 
 .register-link a:hover {
+  text-decoration: underline;
+}
+
+.verification-message {
+  background-color: #e8f4fd;
+  color: #0277bd;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.resend-code {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.resend-code a {
+  color: #4a82ed;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.resend-code a:hover {
   text-decoration: underline;
 }
 </style>
