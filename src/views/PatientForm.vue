@@ -58,6 +58,7 @@
 </template>
 
 <script>
+import { createAuditLog } from 'src/auditLog';
 export default {
   name: 'PatientForm',
   data() {
@@ -114,6 +115,9 @@ export default {
           body: JSON.stringify(patientData)
         });
 
+        if (token && response.ok) {
+          await createAuditLog('patient_create',token,`Patient ${patientData.name} created`);
+        }
         const data = await response.json();
 
         if (!response.ok) {

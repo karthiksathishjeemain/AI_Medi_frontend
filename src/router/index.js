@@ -5,7 +5,7 @@ import RegisterView from '../views/RegisterView.vue'; // Update path
 import PatientForm from '../views/PatientForm.vue'; // Update path
 import MainLayout from '../views/MainLayout.vue'; // Update path
 import MyPatientsView from '../views/MyPatientsView.vue'; // Update path
-
+import LogsView from '../views/LogsView.vue'; // Update path
 // Auth guard for protected routes
 const requireAuth = (to, from, next) => {
   const token = localStorage.getItem('authToken');
@@ -71,6 +71,12 @@ const routes = [
     path: '/my-patients',
     name: 'MyPatients',
     component: MyPatientsView,
+    beforeEnter: requireAuth
+  },
+  {
+    path: '/logs',
+    name: 'Logs',
+    component: LogsView,
     beforeEnter: requireAuth
   }
 ];

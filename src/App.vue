@@ -20,6 +20,10 @@
                   <span class="menu-icon">👥</span>
                   My Patients
                 </router-link>
+                <router-link to="/logs" class="menu-item" @click="dropdownOpen = false">
+                    <span class="menu-icon">📋</span>
+                    Audit Logs
+                </router-link>
                 <button @click="logout" class="menu-item logout">
                   <span class="menu-icon">🚪</span>
                   Logout
@@ -69,7 +73,7 @@
 
 <script>
 import authService from './authService';
-
+import { createAuditLog } from './auditLog';
 export default {
   name: 'App',
   data() {
@@ -152,7 +156,9 @@ export default {
       }
     },
 
-    logout() {
+    async logout() {
+
+      await createAuditLog('logout',localStorage.getItem('authToken'),'User logged out');
       authService.logout();
       this.dropdownOpen = false;
       this.$router.push('/');

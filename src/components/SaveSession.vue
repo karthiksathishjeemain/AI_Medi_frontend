@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { createAuditLog } from '../auditLog';
 export default {
   name: 'SaveSession',
   props: {
@@ -36,7 +37,8 @@ export default {
       showSuccessToast: false,
       showErrorToast: false,
       errorMessage: '',
-      apiBaseUrl: 'https://ai-medi-backend.vercel.app'
+      apiBaseUrl: 'https://ai-medi-backend.vercel.app',
+      // apiBaseUrl: 'http://localhost:5000'
     };
   },
   computed: {
@@ -94,7 +96,9 @@ export default {
         });
 
         const data = await response.json();
-
+        if (token && response.ok) {
+          await createAuditLog('patient_session_create',token,`New session created for the patient ${data.patient_name}`);
+        }
         if (!response.ok) {
           throw new Error(data.message || 'Failed to save session');
         }
@@ -119,7 +123,7 @@ export default {
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/__(.*?)__/g, '$1')
-        .replace(/_(.*?)_/g, '$1');     
+        .replace(/_(.*?)_/g, '$1');
     },
 
     async generateSummary(text) {

@@ -1,7 +1,7 @@
 class AuthService {
   constructor() {
     this.eventBus = document.createElement('div');
-    this.INACTIVITY_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
+    this.INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
     this.inactivityTimer = null;
     this.apiBaseUrl = 'https://ai-medi-backend.vercel.app';
     // this.apiBaseUrl = 'http://localhost:5000';
@@ -60,7 +60,7 @@ class AuthService {
     localStorage.removeItem('userData');
     localStorage.removeItem('currentPatient');
     localStorage.removeItem('lastActivity');
-
+    
     // Clear session timeout
     this.clearInactivityTimer();
     this.removeActivityListeners();

@@ -60,6 +60,7 @@
     </template>
 
     <script>
+    import { createAuditLog } from 'src/auditLog';
     export default {
       name: 'PatientHistoryModal',
       props: {
@@ -78,6 +79,7 @@
           isLoading: false,
           error: null,
           apiBaseUrl: "https://ai-medi-backend.vercel.app"
+          // apiBaseUrl: "http://localhost:5000"
         };
       },
       watch: {
@@ -164,6 +166,9 @@
             }
 
             const sessionData = await response.json();
+            if (token && response.ok) {
+              await createAuditLog('patient_session_view',token,`Read details of session created on ${this.formatDateTime(sessionData.created_at)} of Patient ${sessionData.patient_name} `);
+            }
 
 
             const notesWithData = [...this.sessionNotes];
@@ -257,6 +262,9 @@
             if (!response.ok) {
               throw new Error('Failed to update session note');
             }
+            if (token && response.ok) {
+              await createAuditLog('patient_session_edit',token,`Details of the session edited `);
+            }
 
 
             const notesWithUpdate = [...this.sessionNotes];
@@ -320,6 +328,9 @@
 
             if (!response.ok) {
               throw new Error('Failed to delete session note');
+            }
+            if (token && response.ok) {
+              await createAuditLog('patient_session_delete',token,`Session of the patient deleted`);
             }
 
 

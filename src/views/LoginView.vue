@@ -83,7 +83,7 @@
 
 <script>
 import authService from '../authService';
-
+import { createAuditLog } from 'src/auditLog';
 export default {
   name: 'LoginView',
   data() {
@@ -159,7 +159,7 @@ export default {
 
         // Complete the login process
         authService.login(data.user, data.token);
-
+        await createAuditLog('login', data.token,'User logged in');
         const redirectPath = this.$route.query.redirect || '/dashboard';
         this.$router.push(redirectPath);
 
