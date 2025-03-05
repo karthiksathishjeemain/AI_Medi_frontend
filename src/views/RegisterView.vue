@@ -33,15 +33,36 @@
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            placeholder="Create a password"
-            required
-          />
-          <div class="password-requirements">
-            Password must be at least 8 characters long
+          <div class="password-input-container">
+            <input
+              type="password"
+              id="password"
+              v-model="password"
+              placeholder="Create a password"
+              required
+              :class="{'input-error': password && !isPasswordValid}"
+            />
+            <span
+              v-if="password"
+              class="password-indicator"
+              @click="showPasswordRequirements = !showPasswordRequirements"
+            >
+              <span v-if="!isPasswordValid" class="exclamation-icon">!</span>
+              <span v-else class="check-icon">✓</span>
+            </span>
+          </div>
+          <div v-if="showPasswordRequirements" class="password-requirements-list">
+            <p>Password must contain:</p>
+            <ul>
+              <li :class="{ 'requirement-met': hasMinLength }">At least 8 characters</li>
+              <li :class="{ 'requirement-met': hasUpperCase }">At least one uppercase letter</li>
+              <li :class="{ 'requirement-met': hasLowerCase }">At least one lowercase letter</li>
+              <li :class="{ 'requirement-met': hasNumber }">At least one number</li>
+              <li :class="{ 'requirement-met': hasSpecialChar }">At least one special character</li>
+            </ul>
+          </div>
+          <div class="password-strength-meter" v-if="password">
+            <div class="strength-bar" :style="{ width: passwordStrengthPercentage + '%', backgroundColor: passwordStrengthColor }"></div>
           </div>
         </div>
 
@@ -53,7 +74,11 @@
             v-model="confirmPassword"
             placeholder="Confirm your password"
             required
+            :class="{'input-error': confirmPassword && password !== confirmPassword}"
           />
+          <div v-if="confirmPassword && password !== confirmPassword" class="password-mismatch">
+            Passwords do not match
+          </div>
         </div>
 
         <div class="terms-checkbox">
@@ -68,7 +93,7 @@
         <button
           type="submit"
           class="register-button"
-          :disabled="isLoading || !termsAccepted || password !== confirmPassword"
+          :disabled="isLoading || !termsAccepted || password !== confirmPassword || !isPasswordValid"
         >
           {{ isLoading ? 'Creating Account...' : 'Create Account' }}
         </button>
@@ -130,8 +155,51 @@ export default {
       termsAccepted: false,
       error: null,
       isLoading: false,
-      apiBaseUrl: "https://ai-medi-backend.vercel.app"
-      // apiBaseUrl: "http://localhost:5000"
+      apiBaseUrl: "https://ai-medi-backend.vercel.app",
+      // apiBaseUrl: "http://localhost:5000",
+      showPasswordRequirements: false
+    }
+  },
+  computed: {
+    hasMinLength() {
+      return this.password.length >= 8;
+    },
+    hasUpperCase() {
+      return /[A-Z]/.test(this.password);
+    },
+    hasLowerCase() {
+      return /[a-z]/.test(this.password);
+    },
+    hasNumber() {
+      return /[0-9]/.test(this.password);
+    },
+    hasSpecialChar() {
+      return /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(this.password);
+    },
+    isPasswordValid() {
+      return this.hasMinLength &&
+             this.hasUpperCase &&
+             this.hasLowerCase &&
+             this.hasNumber &&
+             this.hasSpecialChar;
+    },
+    passwordStrengthScore() {
+      let score = 0;
+      if (this.hasMinLength) score++;
+      if (this.hasUpperCase) score++;
+      if (this.hasLowerCase) score++;
+      if (this.hasNumber) score++;
+      if (this.hasSpecialChar) score++;
+      return score;
+    },
+    passwordStrengthPercentage() {
+      return (this.passwordStrengthScore / 5) * 100;
+    },
+    passwordStrengthColor() {
+      if (this.passwordStrengthScore <= 2) return '#ff4d4d'; // Red
+      if (this.passwordStrengthScore <= 3) return '#ffa64d'; // Orange
+      if (this.passwordStrengthScore <= 4) return '#ffff4d'; // Yellow
+      return '#4CAF50'; // Green
     }
   },
   methods: {
@@ -141,8 +209,9 @@ export default {
         return;
       }
 
-      if (this.password.length < 8) {
-        this.error = 'Password must be at least 8 characters long';
+      if (!this.isPasswordValid) {
+        this.error = 'Password does not meet the security requirements';
+        this.showPasswordRequirements = true;
         return;
       }
 
@@ -322,8 +391,100 @@ input:focus {
   border-color: #4a82ed;
 }
 
+.input-error {
+  border-color: #ff4d4d !important;
+}
+
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  width: 100%;
+}
+
+.password-indicator {
+  position: absolute;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.exclamation-icon {
+  color: #ff4d4d;
+  font-weight: bold;
+  font-size: 16px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ffe6e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-icon {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 16px;
+}
+
 .password-requirements {
   color: #777;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.password-requirements-list {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.password-requirements-list p {
+  margin: 0 0 5px 0;
+  color: #555;
+  font-weight: 500;
+}
+
+.password-requirements-list ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.password-requirements-list li {
+  margin-bottom: 3px;
+  color: #777;
+}
+
+.requirement-met {
+  color: #4CAF50 !important;
+}
+
+.password-strength-meter {
+  height: 4px;
+  background-color: #eee;
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.strength-bar {
+  height: 100%;
+  transition: width 0.3s, background-color 0.3s;
+}
+
+.password-mismatch {
+  color: #ff4d4d;
   font-size: 12px;
   margin-top: 4px;
 }
