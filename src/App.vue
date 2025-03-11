@@ -6,6 +6,10 @@
       </div>
       <div class="nav-buttons">
         <template v-if="isLoggedIn">
+          <router-link to="/chat" class="nav-button chat-button">
+    <span class="chat-icon">💬</span>
+    Chat
+  </router-link>
           <div class="user-dropdown">
             <button class="user-avatar" @click="toggleDropdown" ref="userAvatarBtn">
               <span>{{ userInitials }}</span>
@@ -502,5 +506,20 @@ body {
 
 .logout-button:hover {
   background-color: #e2e8f0;
+}
+.chat-button {
+  background-color: #ffffff;
+  color: #4a82ed;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chat-button:hover {
+  background-color: #f0f0f0;
+}
+
+.chat-icon {
+  font-size: 18px;
 }
 </style>

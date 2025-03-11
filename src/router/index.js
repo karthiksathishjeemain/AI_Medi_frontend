@@ -78,6 +78,12 @@ const routes = [
     name: 'Logs',
     component: LogsView,
     beforeEnter: requireAuth
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('../views/CeraChat.vue'),
+    beforeEnter: requireAuth
   }
 ];
 
